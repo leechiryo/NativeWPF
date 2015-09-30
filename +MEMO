@@ -1,0 +1,30 @@
+全体の構造：Windowを更新する
+
+Window : Win32Window, D2dWindow
+
+         1:n 
+Window ------> Sub window
+
+         1:n
+Window ------> Control
+
+         1:n
+Window ------> Control
+
+
+MainWindow : W32Window
+
+SubWindow : D2dWindow
+
+TextBox : D2dWindow
+CheckBox : D2dWindow
+RadioBox : D2dWindow
+ScrollBar : D2dWindow
+ProgressBar : D2dWindow
+DragableBar : D2dWindow
+HDragableBar : DragableBar
+VDragableBar : DragableBar
+HSplitWindow : D2dWindow
+  -> LSubWindow, RSubWindow, HDragableBar
+VSplitWindow : D2dWindow
+  -> TSubWindow, BSubWindow, VDragableBar
