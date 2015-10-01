@@ -10,19 +10,32 @@ private:
   double m_right;
   double m_bottom;
 
+  double m_borderLeft;
+  double m_borderRight;
+  double m_borderTop;
+  double m_borderBottom;
+
+  int m_zOrder;
+
   std::vector<Element *> m_subElements;
 
 public:
-
   Element()
   {
     m_left = 0.0;
     m_top = 0.0;
     m_right = 0.0;
     m_bottom = 0.0;
+
+    m_borderLeft = 0.0;
+    m_borderRight = 0.0;
+    m_borderTop = 0.0;
+    m_borderBottom = 0.0;
+
+    m_zOrder = 0;
   }
 
-  virtual ~Element()
+  ~Element()
   {
     for (auto e : m_subElements) {
       delete e;
@@ -37,8 +50,17 @@ public:
     return newT;
   }
 
-  virtual void Draw() {
+  virtual void DrawSelf() {
+    // Nothing need to draw.
+  }
 
+  void Draw() {
+    DrawSelf();
+
+    // TODO: Set coord (0, 0) to the top left corner
+    // then draw all of the children
+    for (auto e : m_subElements) {
+      e->Draw();
+    }
   }
 };
-
