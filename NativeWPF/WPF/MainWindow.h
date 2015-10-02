@@ -166,9 +166,23 @@ private:
         DWRITE_FONT_WEIGHT_REGULAR,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
-        50.0,
+        16.0,
         L"ja-JP",
         &m_pTextFormat);
+
+      m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+
+      IDWriteRenderingParams *pRP;
+      m_pDWriteFactory->CreateCustomRenderingParams(
+        2.0f,  // gamma
+        1.0f,  // enhancedContrast
+        0.0f,  // clearTypeLevel
+        DWRITE_PIXEL_GEOMETRY_RGB,
+        DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC,
+        &pRP);
+        
+      m_pRenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+      m_pRenderTarget->SetTextRenderingParams(pRP);
     }
 
     return hr;
