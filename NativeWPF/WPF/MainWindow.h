@@ -172,16 +172,19 @@ private:
 
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 
+      m_pTextFormat->SetLineSpacing(DWRITE_LINE_SPACING_METHOD_UNIFORM, 50.0f, 40.0f);
+
+
       IDWriteRenderingParams *pRP;
       m_pDWriteFactory->CreateCustomRenderingParams(
-        2.0f,  // gamma
+        3.5f,  // gamma
         1.0f,  // enhancedContrast
-        0.0f,  // clearTypeLevel
+        1.0f,  // clearTypeLevel
         DWRITE_PIXEL_GEOMETRY_RGB,
-        DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC,
+        DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC,
         &pRP);
         
-      m_pRenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+      m_pRenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
       m_pRenderTarget->SetTextRenderingParams(pRP);
     }
 
@@ -231,7 +234,7 @@ private:
       // render text.
       D2D1_RECT_F textRect = D2D1::RectF(0.0f, 0.0f, rtSize.width, rtSize.height);
 
-      wchar_t *msg = L"Hello, Direct 2D world!\nこんにちは、Direct 2D の世界！";
+      wchar_t *msg = L"Hello, Direct 2D world!\nこんにちは、Direct 2D プログラミングの世界！";
       m_pRenderTarget->DrawText(
         msg,
         lstrlenW(msg),
