@@ -255,7 +255,7 @@ private:
     if (message == WM_CREATE) {
       LPCREATESTRUCT pcs = (LPCREATESTRUCT)lParam;
       DemoApp *pDemoApp = (DemoApp *)pcs->lpCreateParams;
-      ::SetWindowLongPtr(hwnd, GWLP_USERDATA, PtrToUlong(pDemoApp));
+      ::SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pDemoApp);
 
       // inform the application of the frame change.
       RECT rcClient;
