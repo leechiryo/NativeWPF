@@ -7,39 +7,18 @@
 #include <d2d1.h>
 #include <dwrite.h>
 #include "../Resource.h"
+#include "Element.h"
+#include "CommonFunction.h"
 
-template<class Interface>
-inline void SafeRelease(Interface *pT) {
-  if (pT != nullptr) {
-    pT->Release();
-    pT = nullptr;
-  }
-}
-
-#ifndef Assert
-#if defined( DEBUG ) || defined( _DEBUG )
-#define Assert(b) do {if (!(b)) {OutputDebugStringA("Assert: " #b "\n");}} while(0)
-#else
-#define Assert(b)
-#endif //DEBUG || _DEBUG
-#endif
-
-#ifndef HINST_THISCOMPONENT
-EXTERN_C IMAGE_DOS_HEADER __ImageBase;
-#define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
-#endif
-
-class DemoApp
+class DemoApp : public Element
 {
 public:
-  DemoApp() {
+  DemoApp() : Element(nullptr) {
     m_hwnd = nullptr;
-    m_pDirect2dFactory = nullptr;
     m_pRenderTarget = nullptr;
     m_pLightSlateGrayBrush = nullptr;
     m_pCornflowerBlueBrush = nullptr;
     m_pBlackBlueBrush = nullptr;
-    m_pDWriteFactory = nullptr;
     m_pTextFormat = nullptr;
   }
 
@@ -48,57 +27,50 @@ public:
     SafeRelease(m_pLightSlateGrayBrush);
     SafeRelease(m_pBlackBlueBrush);
     SafeRelease(m_pRenderTarget);
-    SafeRelease(m_pDirect2dFactory);
     SafeRelease(m_pTextFormat);
-    SafeRelease(m_pDWriteFactory);
   }
 
   // Register the window class and call methods for instantiating drawing resources
   HRESULT Initialize() {
-    HRESULT hr;
 
-    hr = CreateDeviceIndependentResources();
+    WNDCLASSEX wcex;
 
-    if (SUCCEEDED(hr)) {
-      WNDCLASSEX wcex;
+    wcex.cbSize = sizeof(WNDCLASSEX);
 
-      wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = sizeof(LONG_PTR);
+    wcex.hInstance = HINST_THISCOMPONENT;
+    wcex.hIcon = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_NATIVEWPF));
+    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
+    wcex.lpszMenuName = NULL;
+    wcex.lpszClassName = L"NativeWPFWindow";
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-      wcex.style = CS_HREDRAW | CS_VREDRAW;
-      wcex.lpfnWndProc = WndProc;
-      wcex.cbClsExtra = 0;
-      wcex.cbWndExtra = sizeof(LONG_PTR);
-      wcex.hInstance = HINST_THISCOMPONENT;
-      wcex.hIcon = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_NATIVEWPF));
-      wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-      wcex.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
-      wcex.lpszMenuName = NULL;
-      wcex.lpszClassName = L"NativeWPFWindow";
-      wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    RegisterClassEx(&wcex);
 
-      RegisterClassEx(&wcex);
+    m_hwnd = CreateWindowEx(
+      0,
+      L"NativeWPFWindow",
+      TEXT("Native WPF Demo"),
+      WS_OVERLAPPEDWINDOW,
+      CW_USEDEFAULT,
+      CW_USEDEFAULT,
+      CW_USEDEFAULT,
+      CW_USEDEFAULT,
+      NULL,
+      NULL,
+      HINST_THISCOMPONENT,
+      this); // pass the this pointer to window parameter
 
-      m_hwnd = CreateWindowEx(
-        0,
-        L"NativeWPFWindow",
-        TEXT("Native WPF Demo"),
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        NULL,
-        NULL,
-        HINST_THISCOMPONENT,
-        this); // pass the this pointer to window parameter
-
-      if (m_hwnd) {
-        ShowWindow(m_hwnd, SW_SHOWNORMAL);
-        UpdateWindow(m_hwnd);
-      }
+    if (m_hwnd) {
+      ShowWindow(m_hwnd, SW_SHOWNORMAL);
+      UpdateWindow(m_hwnd);
     }
 
-    return hr;
+    return S_OK;
   }
 
   // Process and dispatch messages
@@ -112,25 +84,6 @@ public:
   }
 
 private:
-  // Initialize device-independent resources.
-  HRESULT CreateDeviceIndependentResources() {
-
-    // create the d2d factory.
-    HRESULT hr = D2D1CreateFactory(
-      D2D1_FACTORY_TYPE_SINGLE_THREADED,
-      &m_pDirect2dFactory);
-
-    if (SUCCEEDED(hr)) {
-
-      // create the dwrite factory.
-      hr = DWriteCreateFactory(
-        DWRITE_FACTORY_TYPE_SHARED,
-        __uuidof(IDWriteFactory),
-        reinterpret_cast<IUnknown**>(&m_pDWriteFactory));
-    }
-
-    return hr;
-  }
 
   // Initialize device-dependent resources.
   HRESULT CreateDeviceResources() {
@@ -142,7 +95,7 @@ private:
 
       D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
 
-      hr = m_pDirect2dFactory->CreateHwndRenderTarget(
+      hr = s_pDirect2dFactory->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
         D2D1::HwndRenderTargetProperties(m_hwnd, size),
         &m_pRenderTarget);
@@ -163,7 +116,7 @@ private:
           &m_pBlackBlueBrush);
       }
 
-      m_pDWriteFactory->CreateTextFormat(
+      s_pDWriteFactory->CreateTextFormat(
         L"Migu 1M",
         NULL,
         DWRITE_FONT_WEIGHT_REGULAR,
@@ -179,14 +132,14 @@ private:
 
 
       IDWriteRenderingParams *pRP;
-      m_pDWriteFactory->CreateCustomRenderingParams(
+      s_pDWriteFactory->CreateCustomRenderingParams(
         3.5f,  // gamma
         1.0f,  // enhancedContrast
         1.0f,  // clearTypeLevel
         DWRITE_PIXEL_GEOMETRY_RGB,
         DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC,
         &pRP);
-        
+
       m_pRenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
       m_pRenderTarget->SetTextRenderingParams(pRP);
     }
@@ -352,11 +305,9 @@ private:
   }
 
   HWND m_hwnd;
-  ID2D1Factory* m_pDirect2dFactory;
   ID2D1HwndRenderTarget* m_pRenderTarget;
+  IDWriteTextFormat* m_pTextFormat;
   ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
   ID2D1SolidColorBrush* m_pCornflowerBlueBrush;
   ID2D1SolidColorBrush* m_pBlackBlueBrush;
-  IDWriteFactory* m_pDWriteFactory;
-  IDWriteTextFormat* m_pTextFormat;
 };

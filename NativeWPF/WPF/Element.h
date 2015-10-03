@@ -3,6 +3,7 @@
 #include <vector>
 #include <d2d1.h>
 #include <dwrite.h>
+#include "CommonFunction.h"
 
 class Element
 {
@@ -19,17 +20,40 @@ private:
 
   int m_zOrder;
 
+  ID2D1HwndRenderTarget* m_pRenderTarget;
+
   std::vector<Element *> m_subElements;
 
 protected:
   static ID2D1Factory* s_pDirect2dFactory;
-  static ID2D1HwndRenderTarget* s_pRenderTarget;
   static IDWriteFactory* s_pDWriteFactory;
 
 public:
-  static void Initialize();
 
-  Element()
+  static HRESULT Initialize() {
+    // create the d2d factory.
+    HRESULT hr = D2D1CreateFactory(
+      D2D1_FACTORY_TYPE_SINGLE_THREADED,
+      &s_pDirect2dFactory);
+
+    if (SUCCEEDED(hr)) {
+
+      // create the dwrite factory.
+      hr = DWriteCreateFactory(
+        DWRITE_FACTORY_TYPE_SHARED,
+        __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown**>(&s_pDWriteFactory));
+    }
+
+    return hr;
+  }
+
+  static void Uninitialize() {
+    SafeRelease(s_pDWriteFactory);
+    SafeRelease(s_pDirect2dFactory);
+  }
+
+  Element(ID2D1HwndRenderTarget* prenderTarget)
   {
     m_left = 0.0;
     m_top = 0.0;
@@ -42,6 +66,8 @@ public:
     m_borderBottom = 0.0;
 
     m_zOrder = 0;
+
+    m_pRenderTarget = prenderTarget;
   }
 
   ~Element()
@@ -54,13 +80,14 @@ public:
 
   template <typename T>
   T* CreateSubElement() {
-    T *newT = new T();
+    T *newT = new T(m_pRenderTarget);
     m_subElements.push_back(newT);
     return newT;
   }
 
   virtual void DrawSelf() {
     // Nothing need to draw.
+    // Derived class will implement this method to draw itself.
   }
 
   void Draw() {
