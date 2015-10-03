@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "WPF\MainWindow.h"
+#include "WPF\Label.h"
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -15,9 +16,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     if (SUCCEEDED(Element::Initialize())) {
       DemoApp app;
 
-      if (SUCCEEDED(app.Initialize())) {
-        app.RunMessageLoop();
-      }
+      app.Initialize();
+
+      Label * pLabel = app.CreateSubElement<Label>();
+      pLabel->SetPosition(80, 100, 300, 150);
+      pLabel->SetText(L"ÉâÉxÉãÇ©ÇÁÇÃÇ†Ç¢Ç≥Ç¬ÅI");
+
+      app.Update();
+
+      app.RunMessageLoop();
 
       Element::Uninitialize();
     }

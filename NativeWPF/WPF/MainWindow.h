@@ -31,7 +31,7 @@ public:
   }
 
   // Register the window class and call methods for instantiating drawing resources
-  HRESULT Initialize() {
+  void Initialize() {
 
     WNDCLASSEX wcex;
 
@@ -68,9 +68,8 @@ public:
     if (m_hwnd) {
       ShowWindow(m_hwnd, SW_SHOWNORMAL);
       UpdateWindow(m_hwnd);
+      CreateDeviceResources();
     }
-
-    return S_OK;
   }
 
   // Process and dispatch messages
@@ -81,6 +80,35 @@ public:
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
+  }
+
+  virtual void DrawSelf() {
+    m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+    m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+    D2D1_SIZE_F rtSize = m_pRenderTarget->GetSize();
+
+    int width = static_cast<int>(rtSize.width);
+    int height = static_cast<int>(rtSize.height);
+
+    for (int x = 0; x < width; x += 10) {
+      m_pRenderTarget->DrawLine(
+        D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
+        D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
+        m_pLightSlateGrayBrush,
+        0.5f);
+    }
+
+    for (int y = 0; y < height; y += 10) {
+      m_pRenderTarget->DrawLine(
+        D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
+        D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
+        m_pLightSlateGrayBrush,
+        0.5f);
+    }
+  }
+
+  void Update() {
+    InvalidateRect(m_hwnd, NULL, false);
   }
 
 private:
@@ -110,26 +138,6 @@ private:
           D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
           &m_pCornflowerBlueBrush);
       }
-      if (SUCCEEDED(hr)) {
-        hr = m_pRenderTarget->CreateSolidColorBrush(
-          D2D1::ColorF(D2D1::ColorF::Black),
-          &m_pBlackBlueBrush);
-      }
-
-      s_pDWriteFactory->CreateTextFormat(
-        L"Migu 1M",
-        NULL,
-        DWRITE_FONT_WEIGHT_REGULAR,
-        DWRITE_FONT_STYLE_NORMAL,
-        DWRITE_FONT_STRETCH_NORMAL,
-        16.0,
-        L"ja-JP",
-        &m_pTextFormat);
-
-      m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-
-      m_pTextFormat->SetLineSpacing(DWRITE_LINE_SPACING_METHOD_UNIFORM, 50.0f, 40.0f);
-
 
       IDWriteRenderingParams *pRP;
       s_pDWriteFactory->CreateCustomRenderingParams(
@@ -164,39 +172,8 @@ private:
 
     if (SUCCEEDED(hr)) {
       m_pRenderTarget->BeginDraw();
-      m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-      m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-      D2D1_SIZE_F rtSize = m_pRenderTarget->GetSize();
 
-      int width = static_cast<int>(rtSize.width);
-      int height = static_cast<int>(rtSize.height);
-
-      for (int x = 0; x < width; x += 10) {
-        m_pRenderTarget->DrawLine(
-          D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
-          D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
-          m_pLightSlateGrayBrush,
-          0.5f);
-      }
-
-      for (int y = 0; y < height; y += 10) {
-        m_pRenderTarget->DrawLine(
-          D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
-          D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
-          m_pLightSlateGrayBrush,
-          0.5f);
-      }
-
-      // render text.
-      D2D1_RECT_F textRect = D2D1::RectF(0.0f, 0.0f, rtSize.width, rtSize.height);
-
-      wchar_t *msg = L"Hello, Direct 2D world!\nこんにちは、Direct 2D プログラミングの世界！";
-      m_pRenderTarget->DrawText(
-        msg,
-        lstrlenW(msg),
-        m_pTextFormat,
-        textRect,
-        m_pBlackBlueBrush);
+      Draw();
 
       m_pRenderTarget->EndDraw();
     }
@@ -211,6 +188,8 @@ private:
 
   // Resize the render target.
   void OnResize(UINT width, UINT height) {
+    m_right = width;
+    m_bottom = height;
     if (m_pRenderTarget) {
       m_pRenderTarget->Resize(D2D1::SizeU(width, height));
     }
@@ -305,7 +284,6 @@ private:
   }
 
   HWND m_hwnd;
-  ID2D1HwndRenderTarget* m_pRenderTarget;
   IDWriteTextFormat* m_pTextFormat;
   ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
   ID2D1SolidColorBrush* m_pCornflowerBlueBrush;

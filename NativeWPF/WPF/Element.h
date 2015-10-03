@@ -7,7 +7,7 @@
 
 class Element
 {
-private:
+protected:
   double m_left;
   double m_top;
   double m_right;
@@ -53,7 +53,7 @@ public:
     SafeRelease(s_pDirect2dFactory);
   }
 
-  Element(ID2D1HwndRenderTarget* prenderTarget)
+  Element(ID2D1HwndRenderTarget* pRenderTarget)
   {
     m_left = 0.0;
     m_top = 0.0;
@@ -67,7 +67,7 @@ public:
 
     m_zOrder = 0;
 
-    m_pRenderTarget = prenderTarget;
+    m_pRenderTarget = pRenderTarget;
   }
 
   ~Element()
@@ -98,5 +98,12 @@ public:
     for (auto e : m_subElements) {
       e->Draw();
     }
+  }
+
+  void SetPosition(double left, double top, double right, double bottom) {
+    m_left = left;
+    m_top = top;
+    m_right = right;
+    m_bottom = bottom;
   }
 };
