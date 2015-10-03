@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <d2d1.h>
+#include <dwrite.h>
 
 class Element
 {
@@ -19,7 +21,14 @@ private:
 
   std::vector<Element *> m_subElements;
 
+protected:
+  static ID2D1Factory* s_pDirect2dFactory;
+  static ID2D1HwndRenderTarget* s_pRenderTarget;
+  static IDWriteFactory* s_pDWriteFactory;
+
 public:
+  static void Initialize();
+
   Element()
   {
     m_left = 0.0;
