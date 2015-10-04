@@ -173,12 +173,15 @@ private:
     if (SUCCEEDED(hr)) {
       m_pRenderTarget->BeginDraw();
 
+      // Method from base class (Element).
       Draw();
 
       m_pRenderTarget->EndDraw();
     }
 
     if (hr == D2DERR_RECREATE_TARGET) {
+      // TODO: How to discard all of the device resources in the child window
+      //       and recreate them?
       hr = S_OK;
       DiscardDeviceResources();
     }

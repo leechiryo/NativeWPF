@@ -21,6 +21,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
       Label * pLabel = app.CreateSubElement<Label>();
       pLabel->SetPosition(80, 100, 300, 150);
       pLabel->SetText(L"ƒ‰ƒxƒ‹‚©‚ç‚Ì‚ ‚¢‚³‚ÂI");
+      pLabel->SetColor(0x12a722);
 
       app.Update();
 
