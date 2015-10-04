@@ -68,6 +68,8 @@ public:
     m_zOrder = 0;
 
     m_pRenderTarget = pRenderTarget;
+
+
   }
 
   ~Element()
@@ -85,10 +87,15 @@ public:
     return newT;
   }
 
-  virtual void DrawSelf() {
-    // Nothing need to draw.
-    // Derived class will implement this method to draw itself.
-  }
+  // Nothing need to draw.
+  // Derived class will implement this method to draw itself.
+  virtual void DrawSelf() = 0;
+
+  // Create the resources to draw itself.
+  virtual void CreateResources(){}
+
+  // Destory the resources.
+  virtual void DestoryResources(){}
 
   void Draw() {
     DrawSelf();

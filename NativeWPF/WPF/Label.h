@@ -44,6 +44,7 @@ private:
 
 public:
   Label(ID2D1HwndRenderTarget *rt) : Element(rt) {
+
     m_color = 0x333333;
     m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
     m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
@@ -84,11 +85,17 @@ public:
     wcscpy_s(m_text, MAX_CHARS + 1, text);
   }
 
-  void SetFont(DWRITE_FONT_WEIGHT weight, DWRITE_FONT_STYLE style, DWRITE_FONT_STRETCH stretch) {
+  void SetFont(const wchar_t * font, 
+               DWRITE_FONT_WEIGHT weight,
+               DWRITE_FONT_STYLE style,
+               DWRITE_FONT_STRETCH stretch) {
+
+    wcscpy_s(m_font, MAX_CHARS + 1, font);
     m_fontWeight = weight;
     m_fontStyle = style;
     m_fontStretch = stretch;
     UpdateTextFormat();
+
   }
 
   void SetColor(UINT32 rgbColor) {
@@ -102,10 +109,6 @@ public:
     if (!SUCCEEDED(hr)) {
       throw new std::runtime_error("Failed to create the brush.");
     }
-  }
-
-  void SetFont(const wchar_t * font) {
-    wcscpy_s(m_font, MAX_CHARS + 1, font);
   }
 
   virtual void DrawSelf() {
