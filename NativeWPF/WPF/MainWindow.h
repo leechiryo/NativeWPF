@@ -10,29 +10,16 @@
 #include "Element.h"
 #include "CommonFunction.h"
 
-class DemoApp : public Element
+class MainWindow : public Element
 {
 public:
-  DemoApp() : Element(nullptr) {
+  MainWindow() : Element(nullptr) {
     m_hwnd = nullptr;
-    m_pRenderTarget = nullptr;
+
     m_pLightSlateGrayBrush = nullptr;
     m_pCornflowerBlueBrush = nullptr;
-    m_pBlackBlueBrush = nullptr;
-    m_pTextFormat = nullptr;
-  }
 
-  ~DemoApp() {
-    SafeRelease(m_pCornflowerBlueBrush);
-    SafeRelease(m_pLightSlateGrayBrush);
-    SafeRelease(m_pBlackBlueBrush);
-    SafeRelease(m_pRenderTarget);
-    SafeRelease(m_pTextFormat);
-  }
-
-  // Register the window class and call methods for instantiating drawing resources
-  void Initialize() {
-
+    // Create window using windows api.
     WNDCLASSEX wcex;
 
     wcex.cbSize = sizeof(WNDCLASSEX);
@@ -66,10 +53,21 @@ public:
       this); // pass the this pointer to window parameter
 
     if (m_hwnd) {
+      // Call virtual function from the constructor.
+      // This is what I want.
+      CreateD2DResources();
+
       ShowWindow(m_hwnd, SW_SHOWNORMAL);
       UpdateWindow(m_hwnd);
-      CreateDeviceResources();
     }
+  }
+
+  ~MainWindow() {
+
+    // Call virtual function from the destructor.
+    // This is what I want.
+    DestoryD2DResources();
+
   }
 
   // Process and dispatch messages
@@ -82,39 +80,8 @@ public:
     }
   }
 
-  virtual void DrawSelf() {
-    m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-    m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-    D2D1_SIZE_F rtSize = m_pRenderTarget->GetSize();
-
-    int width = static_cast<int>(rtSize.width);
-    int height = static_cast<int>(rtSize.height);
-
-    for (int x = 0; x < width; x += 10) {
-      m_pRenderTarget->DrawLine(
-        D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
-        D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
-        m_pLightSlateGrayBrush,
-        0.5f);
-    }
-
-    for (int y = 0; y < height; y += 10) {
-      m_pRenderTarget->DrawLine(
-        D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
-        D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
-        m_pLightSlateGrayBrush,
-        0.5f);
-    }
-  }
-
-  void Update() {
-    InvalidateRect(m_hwnd, NULL, false);
-  }
-
-private:
-
   // Initialize device-dependent resources.
-  HRESULT CreateDeviceResources() {
+  virtual void CreateD2DResources() {
     HRESULT hr = S_OK;
 
     if (!m_pRenderTarget) {
@@ -151,24 +118,50 @@ private:
       m_pRenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
       m_pRenderTarget->SetTextRenderingParams(pRP);
     }
-
-    return hr;
   }
 
   // Release device-dependent resource.
-  void DiscardDeviceResources() {
+  virtual void DestoryD2DResources() {
     SafeRelease(m_pLightSlateGrayBrush);
     SafeRelease(m_pCornflowerBlueBrush);
-    SafeRelease(m_pBlackBlueBrush);
     SafeRelease(m_pRenderTarget);
-    SafeRelease(m_pTextFormat);
   }
+
+  virtual void DrawSelf() {
+    m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+    m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+    D2D1_SIZE_F rtSize = m_pRenderTarget->GetSize();
+
+    int width = static_cast<int>(rtSize.width);
+    int height = static_cast<int>(rtSize.height);
+
+    for (int x = 0; x < width; x += 10) {
+      m_pRenderTarget->DrawLine(
+        D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
+        D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
+        m_pLightSlateGrayBrush,
+        0.5f);
+    }
+
+    for (int y = 0; y < height; y += 10) {
+      m_pRenderTarget->DrawLine(
+        D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
+        D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
+        m_pLightSlateGrayBrush,
+        0.5f);
+    }
+  }
+
+  void Update() {
+    InvalidateRect(m_hwnd, NULL, false);
+  }
+
+private:
+
 
   // Draw content.
   HRESULT OnRender() {
     HRESULT hr = S_OK;
-
-    hr = CreateDeviceResources();
 
     if (SUCCEEDED(hr)) {
       m_pRenderTarget->BeginDraw();
@@ -180,10 +173,11 @@ private:
     }
 
     if (hr == D2DERR_RECREATE_TARGET) {
-      // TODO: How to discard all of the device resources in the child window
-      //       and recreate them?
+      // Discard all of the device resources in the child window
+      // and recreate them.
       hr = S_OK;
-      DiscardDeviceResources();
+      DestoryD2DEnvironment();
+      CreateD2DEnvironment();
     }
 
     return hr;
@@ -209,7 +203,7 @@ private:
 
     if (message == WM_CREATE) {
       LPCREATESTRUCT pcs = (LPCREATESTRUCT)lParam;
-      DemoApp *pDemoApp = (DemoApp *)pcs->lpCreateParams;
+      MainWindow *pDemoApp = (MainWindow *)pcs->lpCreateParams;
       ::SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pDemoApp);
 
       // inform the application of the frame change.
@@ -227,7 +221,7 @@ private:
       result = 1;
     }
     else {
-      DemoApp *pDemoApp = reinterpret_cast<DemoApp *>(static_cast<LONG_PTR>(
+      MainWindow *pDemoApp = reinterpret_cast<MainWindow *>(static_cast<LONG_PTR>(
         ::GetWindowLongPtr(hwnd, GWLP_USERDATA)));
 
       bool wasHandled = false;
@@ -287,8 +281,6 @@ private:
   }
 
   HWND m_hwnd;
-  IDWriteTextFormat* m_pTextFormat;
   ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
   ID2D1SolidColorBrush* m_pCornflowerBlueBrush;
-  ID2D1SolidColorBrush* m_pBlackBlueBrush;
 };

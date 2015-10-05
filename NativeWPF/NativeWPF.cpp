@@ -14,14 +14,16 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   if (SUCCEEDED(CoInitialize(NULL))) {
     if (SUCCEEDED(Element::Initialize())) {
-      DemoApp app;
-
-      app.Initialize();
+      MainWindow app;
 
       Label * pLabel = app.CreateSubElement<Label>();
-      pLabel->SetPosition(80, 100, 300, 150);
+      pLabel->SetPosition(80, 100, 650, 150);
       pLabel->SetText(L"ƒ‰ƒxƒ‹‚©‚ç‚Ì‚ ‚¢‚³‚ÂI");
-      pLabel->SetColor(0x12a722);
+      pLabel->SetColor(0x656565);
+      pLabel->SetFont(L"Migu 1M",
+        DWRITE_FONT_WEIGHT_REGULAR,
+        DWRITE_FONT_STYLE_NORMAL,
+        DWRITE_FONT_STRETCH_NORMAL, 24.0f);
 
       app.Update();
 

@@ -24,9 +24,60 @@ protected:
 
   std::vector<Element *> m_subElements;
 
-protected:
   static ID2D1Factory* s_pDirect2dFactory;
   static IDWriteFactory* s_pDWriteFactory;
+
+  Element(ID2D1HwndRenderTarget* pRenderTarget)
+  {
+    m_left = 0.0;
+    m_top = 0.0;
+    m_right = 0.0;
+    m_bottom = 0.0;
+
+    m_borderLeft = 0.0;
+    m_borderRight = 0.0;
+    m_borderTop = 0.0;
+    m_borderBottom = 0.0;
+
+    m_zOrder = 0;
+
+    m_pRenderTarget = pRenderTarget;
+  }
+
+  // Derived class will implement this method to draw itself.
+  virtual void DrawSelf() = 0;
+
+  // Create the resources to draw itself.
+  virtual void CreateD2DResources() = 0;
+
+  // Destory the resources.
+  virtual void DestoryD2DResources() = 0;
+
+  void Draw() {
+    DrawSelf();
+
+    // TODO: Set coord (0, 0) to the top left corner
+    // then draw all of the children
+    for (auto e : m_subElements) {
+      e->Draw();
+    }
+  }
+
+  void CreateD2DEnvironment(){
+    CreateD2DResources();
+
+    for (auto e : m_subElements){
+      e->CreateD2DEnvironment();
+    }
+  }
+
+  void DestoryD2DEnvironment(){
+    for (auto e : m_subElements){
+      e->DestoryD2DEnvironment();
+    }
+
+    DestoryD2DResources();
+  }
 
 public:
 
@@ -53,27 +104,10 @@ public:
     SafeRelease(s_pDirect2dFactory);
   }
 
-  Element(ID2D1HwndRenderTarget* pRenderTarget)
-  {
-    m_left = 0.0;
-    m_top = 0.0;
-    m_right = 0.0;
-    m_bottom = 0.0;
-
-    m_borderLeft = 0.0;
-    m_borderRight = 0.0;
-    m_borderTop = 0.0;
-    m_borderBottom = 0.0;
-
-    m_zOrder = 0;
-
-    m_pRenderTarget = pRenderTarget;
-
-
-  }
-
   ~Element()
   {
+    // NOTE: m_pRenderTarget is shared by all of the children in the 
+    //       window, it will be created and released in the mainwindow class.
     for (auto e : m_subElements) {
       delete e;
       e = nullptr;
@@ -83,28 +117,9 @@ public:
   template <typename T>
   T* CreateSubElement() {
     T *newT = new T(m_pRenderTarget);
+    newT->CreateD2DResources();
     m_subElements.push_back(newT);
     return newT;
-  }
-
-  // Nothing need to draw.
-  // Derived class will implement this method to draw itself.
-  virtual void DrawSelf() = 0;
-
-  // Create the resources to draw itself.
-  virtual void CreateResources(){}
-
-  // Destory the resources.
-  virtual void DestoryResources(){}
-
-  void Draw() {
-    DrawSelf();
-
-    // TODO: Set coord (0, 0) to the top left corner
-    // then draw all of the children
-    for (auto e : m_subElements) {
-      e->Draw();
-    }
   }
 
   void SetPosition(double left, double top, double right, double bottom) {
