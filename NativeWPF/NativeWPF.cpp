@@ -25,6 +25,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL, 24.0f);
 
+      Label * pLabel2 = app.CreateSubElement<Label>();
+      pLabel2->SetPosition(80, 170, 650, 270);
+      pLabel2->SetText(L"'Hello, world!' from the Label control.");
+      pLabel2->SetColor(0x333399);
+      pLabel2->SetFont(L"Source Code Pro",
+        DWRITE_FONT_WEIGHT_REGULAR,
+        DWRITE_FONT_STYLE_NORMAL,
+        DWRITE_FONT_STRETCH_NORMAL, 24.0f);
+
       app.Update();
 
       app.RunMessageLoop();
