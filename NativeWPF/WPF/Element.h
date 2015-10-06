@@ -1,12 +1,17 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include <d2d1.h>
 #include <dwrite.h>
 #include "CommonFunction.h"
 
 class Element
 {
+  typedef int (Element::*MessageFunction)(WPARAM wParam, LPARAM lParam);
+private:
+  std::map<UINT, MessageFunction> m_msgFuncTbl;
+
 protected:
   float m_left;
   float m_top;
@@ -63,20 +68,45 @@ protected:
     }
   }
 
-  void CreateD2DEnvironment(){
+  void CreateD2DEnvironment() {
     CreateD2DResources();
 
-    for (auto e : m_subElements){
+    for (auto e : m_subElements) {
       e->CreateD2DEnvironment();
     }
   }
 
-  void DestoryD2DEnvironment(){
-    for (auto e : m_subElements){
+  void DestoryD2DEnvironment() {
+    for (auto e : m_subElements) {
       e->DestoryD2DEnvironment();
     }
 
     DestoryD2DResources();
+  }
+
+  void AddMessageFunc(UINT msg, MessageFunction func) {
+    m_msgFuncTbl[msg] = func;
+  }
+
+  int HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    for (auto e : m_subElements) {
+      // child element will check the message first.
+      int retval = e->HandleMessage(msg, wParam, lParam);
+
+      // if child processed the message, then return the result
+      // and the parent's event handler will be skipped.
+      if (retval >= 0)
+        return retval;
+    }
+
+    // if the child elements are not process the current
+    // message, then try the parent element itself.
+    if (m_msgFuncTbl.find(msg) != m_msgFuncTbl.end()) {
+      return (this->*m_msgFuncTbl[msg])(wParam, lParam);
+    }
+
+    // there are not any handler function for this message.
+    return -1;
   }
 
 public:
