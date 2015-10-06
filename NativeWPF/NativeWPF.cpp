@@ -32,7 +32,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
       pLabel2->SetFont(L"Source Code Pro",
         DWRITE_FONT_WEIGHT_REGULAR,
         DWRITE_FONT_STYLE_NORMAL,
-        DWRITE_FONT_STRETCH_NORMAL, 24.0f);
+        DWRITE_FONT_STRETCH_NORMAL, 16.0f);
 
       app.Update();
 

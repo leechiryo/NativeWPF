@@ -8,15 +8,15 @@
 class Element
 {
 protected:
-  double m_left;
-  double m_top;
-  double m_right;
-  double m_bottom;
+  float m_left;
+  float m_top;
+  float m_right;
+  float m_bottom;
 
-  double m_borderLeft;
-  double m_borderRight;
-  double m_borderTop;
-  double m_borderBottom;
+  float m_borderLeft;
+  float m_borderRight;
+  float m_borderTop;
+  float m_borderBottom;
 
   int m_zOrder;
 
@@ -122,7 +122,7 @@ public:
     return newT;
   }
 
-  void SetPosition(double left, double top, double right, double bottom) {
+  void SetPosition(float left, float top, float right, float bottom) {
     m_left = left;
     m_top = top;
     m_right = right;

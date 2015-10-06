@@ -5,18 +5,18 @@ class Button :
 {
 public:
 
-  Button()
-  {
+  Button(ID2D1HwndRenderTarget *pRT) : Element(pRT) {
   }
 
-  virtual ~Button()
-  {
+  virtual ~Button() {
+    // virtual destructor
   }
 
   virtual void DrawSelf() {
-    // draw a border.
+    // draw a border and have a label in it.
   }
 
   // onclick event handler.
-};
 
+  // onhover event handler. change the apperance of the button.
+};

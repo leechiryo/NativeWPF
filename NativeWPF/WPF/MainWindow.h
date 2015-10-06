@@ -184,7 +184,7 @@ private:
   }
 
   // Resize the render target.
-  void OnResize(UINT width, UINT height) {
+  void OnResize(WORD width, WORD height) {
     m_right = width;
     m_bottom = height;
     if (m_pRenderTarget) {
@@ -230,8 +230,8 @@ private:
         switch (message) {
         case WM_SIZE:
         {
-          UINT width = LOWORD(lParam);
-          UINT height = HIWORD(lParam);
+          WORD width = LOWORD(lParam);
+          WORD height = HIWORD(lParam);
           pDemoApp->OnResize(width, height);
           result = 0;
           wasHandled = true;

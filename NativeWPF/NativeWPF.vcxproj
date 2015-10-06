@@ -161,6 +161,7 @@
     <ClInclude Include="WPF\Image.h" />
     <ClInclude Include="WPF\Label.h" />
     <ClInclude Include="WPF\MainWindow.h" />
+    <ClInclude Include="WPF\MessageHandler.h" />
     <ClInclude Include="WPF\ScrollBar.h" />
     <ClInclude Include="WPF\SplitWindow.h" />
     <ClInclude Include="WPF\TextBox.h" />
