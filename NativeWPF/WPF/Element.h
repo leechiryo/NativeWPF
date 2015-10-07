@@ -5,6 +5,7 @@
 #include <d2d1.h>
 #include <dwrite.h>
 #include <windows.h>
+#include <windowsx.h>
 #include "CommonFunction.h"
 
 
@@ -65,13 +66,13 @@ protected:
   // Destory the resources.
   virtual void DestoryD2DResources() = 0;
 
-  virtual void MouseMove(float x, float y){
+  virtual void MouseMove(float x, float y) {
   }
 
-  virtual void MouseEnter(float x, float y){
+  virtual void MouseEnter(float x, float y) {
   }
 
-  virtual void MouseLeft(float x, float y){
+  virtual void MouseLeft(float x, float y) {
   }
 
   void Draw() {
@@ -105,7 +106,24 @@ protected:
   }
 
   char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) {
+
+    bool isMouseEvent = 0;
+    int pixelX = 0;
+    int pixelY = 0;
+    if (msg == WM_MOUSEMOVE) {
+      // When mouse event occured, we get the coordinate first.
+      pixelX = GET_X_LPARAM(lParam);
+      pixelY = GET_Y_LPARAM(lParam);
+      isMouseEvent = true;
+    }
+
     for (auto e : m_subElements) {
+      if (isMouseEvent && !e->HitTest(pixelX, pixelY)) {
+        // Mouse event should be processed only when it is
+        // occured in the element's area.
+        continue;
+      }
+
       // child element will try to process the message first.
       char processed = e->HandleMessage(msg, wParam, lParam, result);
 
@@ -126,21 +144,21 @@ protected:
   }
 
   template <typename T>
-  float PixelsToDipsX(T x){
+  float PixelsToDipsX(T x) {
     return static_cast<float>(x) / DPI_SCALE_X;
   }
 
   template <typename T>
-  float PixelsToDipsY(T y){
+  float PixelsToDipsY(T y) {
     return static_cast<float>(y) / DPI_SCALE_Y;
   }
 
-  virtual bool HitTest(float dipX, float dipY){
+  virtual bool HitTest(float dipX, float dipY) {
     return dipX >= m_left && dipX <= m_right
       && dipY >= m_top && dipY <= m_bottom;
   }
 
-  bool HitTest(int pixelsX, int pixelsY){
+  bool HitTest(int pixelsX, int pixelsY) {
     float dipX = PixelsToDipsX(pixelsX);
     float dipY = PixelsToDipsY(pixelsY);
 
