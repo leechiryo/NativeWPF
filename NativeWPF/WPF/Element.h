@@ -4,13 +4,20 @@
 #include <map>
 #include <d2d1.h>
 #include <dwrite.h>
+#include <windows.h>
 #include "CommonFunction.h"
+
 
 class Element
 {
-  typedef int (Element::*MessageFunction)(WPARAM wParam, LPARAM lParam);
+public:
+  typedef LRESULT(Element::*MessageFunction)(WPARAM wParam, LPARAM lParam);
+
 private:
   std::map<UINT, MessageFunction> m_msgFuncTbl;
+
+  static float DPI_SCALE_X;
+  static float DPI_SCALE_Y;
 
 protected:
   float m_left;
@@ -58,6 +65,15 @@ protected:
   // Destory the resources.
   virtual void DestoryD2DResources() = 0;
 
+  virtual void MouseMove(float x, float y){
+  }
+
+  virtual void MouseEnter(float x, float y){
+  }
+
+  virtual void MouseLeft(float x, float y){
+  }
+
   void Draw() {
     DrawSelf();
 
@@ -88,25 +104,47 @@ protected:
     m_msgFuncTbl[msg] = func;
   }
 
-  int HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+  char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) {
     for (auto e : m_subElements) {
-      // child element will check the message first.
-      int retval = e->HandleMessage(msg, wParam, lParam);
+      // child element will try to process the message first.
+      char processed = e->HandleMessage(msg, wParam, lParam, result);
 
       // if child processed the message, then return the result
       // and the parent's event handler will be skipped.
-      if (retval >= 0)
-        return retval;
+      if (processed) return 1;
     }
 
     // if the child elements are not process the current
     // message, then try the parent element itself.
     if (m_msgFuncTbl.find(msg) != m_msgFuncTbl.end()) {
-      return (this->*m_msgFuncTbl[msg])(wParam, lParam);
+      result = (this->*m_msgFuncTbl[msg])(wParam, lParam);
+      return 1;  // Notify to parent element that it processed the message.
     }
 
-    // there are not any handler function for this message.
-    return -1;
+    // Notify to parent element that it doesn't processed the message.
+    return 0;
+  }
+
+  template <typename T>
+  float PixelsToDipsX(T x){
+    return static_cast<float>(x) / DPI_SCALE_X;
+  }
+
+  template <typename T>
+  float PixelsToDipsY(T y){
+    return static_cast<float>(y) / DPI_SCALE_Y;
+  }
+
+  virtual bool HitTest(float dipX, float dipY){
+    return dipX >= m_left && dipX <= m_right
+      && dipY >= m_top && dipY <= m_bottom;
+  }
+
+  bool HitTest(int pixelsX, int pixelsY){
+    float dipX = PixelsToDipsX(pixelsX);
+    float dipY = PixelsToDipsY(pixelsY);
+
+    return HitTest(dipX, dipY);
   }
 
 public:
@@ -125,6 +163,12 @@ public:
         __uuidof(IDWriteFactory),
         reinterpret_cast<IUnknown**>(&s_pDWriteFactory));
     }
+
+    float dpiX, dpiY;
+    s_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
+
+    DPI_SCALE_X = dpiX / 96.0f;
+    DPI_SCALE_Y = dpiY / 96.0f;
 
     return hr;
   }

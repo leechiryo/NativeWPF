@@ -17,7 +17,12 @@ public:
     m_hwnd = nullptr;
 
     m_pLightSlateGrayBrush = nullptr;
-    m_pCornflowerBlueBrush = nullptr;
+
+    // Register message handler methods.
+    AddMessageFunc(WM_SIZE, (MessageFunction)(&MainWindow::HandleMessage_SIZE));
+    AddMessageFunc(WM_DISPLAYCHANGE, (MessageFunction)(&MainWindow::HandleMessage_DISPLAYCHANGE));
+    AddMessageFunc(WM_NCCALCSIZE, (MessageFunction)(&MainWindow::HandleMessage_NCCALCSIZE));
+    AddMessageFunc(WM_DESTROY, (MessageFunction)(&MainWindow::HandleMessage_DESTROY));
 
     // Create window using windows api.
     WNDCLASSEX wcex;
@@ -67,7 +72,6 @@ public:
     // Call virtual function from the destructor.
     // This is what I want.
     DestoryD2DResources();
-
   }
 
   // Process and dispatch messages
@@ -100,11 +104,6 @@ public:
           D2D1::ColorF(D2D1::ColorF::LightSlateGray),
           &m_pLightSlateGrayBrush);
       }
-      if (SUCCEEDED(hr)) {
-        hr = m_pRenderTarget->CreateSolidColorBrush(
-          D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
-          &m_pCornflowerBlueBrush);
-      }
 
       IDWriteRenderingParams *pRP;
       s_pDWriteFactory->CreateCustomRenderingParams(
@@ -123,7 +122,6 @@ public:
   // Release device-dependent resource.
   virtual void DestoryD2DResources() {
     SafeRelease(m_pLightSlateGrayBrush);
-    SafeRelease(m_pCornflowerBlueBrush);
     SafeRelease(m_pRenderTarget);
   }
 
@@ -158,38 +156,35 @@ public:
 
 private:
 
-
-  // Draw content.
-  HRESULT OnRender() {
-    HRESULT hr = S_OK;
-
-    if (SUCCEEDED(hr)) {
-      m_pRenderTarget->BeginDraw();
-
-      // Method from base class (Element).
-      Draw();
-
-      m_pRenderTarget->EndDraw();
+  LRESULT HandleMessage_SIZE(WPARAM wParam, LPARAM lParam){
+    m_right = LOWORD(lParam);
+    m_bottom = HIWORD(lParam);
+    if (m_pRenderTarget) {
+      m_pRenderTarget->Resize(D2D1::SizeU((UINT)m_right, (UINT)m_bottom));
     }
-
-    if (hr == D2DERR_RECREATE_TARGET) {
-      // Discard all of the device resources in the child window
-      // and recreate them.
-      hr = S_OK;
-      DestoryD2DEnvironment();
-      CreateD2DEnvironment();
-    }
-
-    return hr;
+    return 0;
   }
 
-  // Resize the render target.
-  void OnResize(WORD width, WORD height) {
-    m_right = width;
-    m_bottom = height;
-    if (m_pRenderTarget) {
-      m_pRenderTarget->Resize(D2D1::SizeU(width, height));
-    }
+  LRESULT HandleMessage_DISPLAYCHANGE(WPARAM wParam, LPARAM lParam){
+    InvalidateRect(m_hwnd, NULL, false);
+    return 0;
+  }
+
+  LRESULT HandleMessage_NCCALCSIZE(WPARAM wParam, LPARAM lParam){
+    /*
+    ** From MSDN:
+    ** If the wParam parameter is FALSE, the application should return zero.
+    ** When wParam is TRUE, simply returning 0 without processing the NCCALCSIZE_PARAMS rectangles
+    ** will cause the client area to resize to the size of the window, including the window frame.
+    ** This will remove the window frame and caption items from your window, leaving only the client
+    ** area displayed.
+    */
+    return 0;
+  }
+
+  LRESULT HandleMessage_DESTROY(WPARAM wParam, LPARAM lParam){
+    PostQuitMessage(0);
+    return 1;
   }
 
   // The windows procedure.
@@ -224,55 +219,36 @@ private:
       MainWindow *pDemoApp = reinterpret_cast<MainWindow *>(static_cast<LONG_PTR>(
         ::GetWindowLongPtr(hwnd, GWLP_USERDATA)));
 
-      bool wasHandled = false;
-
       if (pDemoApp) {
-        switch (message) {
-        case WM_SIZE:
-        {
-          WORD width = LOWORD(lParam);
-          WORD height = HIWORD(lParam);
-          pDemoApp->OnResize(width, height);
-          result = 0;
-          wasHandled = true;
-          break;
-        }
+        if (message == WM_PAINT){
+          // WM_PAINT will never be process by message handler function.
+          // It will be process in a special way.
+          pDemoApp->m_pRenderTarget->BeginDraw();
 
-        case WM_DISPLAYCHANGE:
-          InvalidateRect(hwnd, NULL, false);
-          result = 0;
-          wasHandled = true;
-          break;
+          // Method from base class (Element).
+          pDemoApp->Draw();
 
-        case WM_PAINT:
-          pDemoApp->OnRender();
+          HRESULT hr = pDemoApp->m_pRenderTarget->EndDraw();
+
+          if (hr == D2DERR_RECREATE_TARGET) {
+            // Discard all of the device resources in the child window
+            // and recreate them.
+            pDemoApp->DestoryD2DEnvironment();
+            pDemoApp->CreateD2DEnvironment();
+          }
+
           ValidateRect(hwnd, NULL);
-          result = 0;
-          wasHandled = true;
-          break;
 
-          /*
-          ** From MSDN:
-          ** If the wParam parameter is FALSE, the application should return zero.
-          ** When wParam is TRUE, simply returning 0 without processing the NCCALCSIZE_PARAMS rectangles
-          ** will cause the client area to resize to the size of the window, including the window frame.
-          ** This will remove the window frame and caption items from your window, leaving only the client
-          ** area displayed.
-          */
-        case WM_NCCALCSIZE:
           result = 0;
-          wasHandled = true;
-          break;
-
-        case WM_DESTROY:
-          PostQuitMessage(0);
-          result = 1;
-          wasHandled = true;
-          break;
+        }
+        else{
+          char processed = pDemoApp->HandleMessage(message, wParam, lParam, result);
+          if (!processed){
+            result = DefWindowProc(hwnd, message, wParam, lParam);
+          }
         }
       }
-
-      if (!wasHandled) {
+      else {
         result = DefWindowProc(hwnd, message, wParam, lParam);
       }
     }
@@ -282,5 +258,4 @@ private:
 
   HWND m_hwnd;
   ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
-  ID2D1SolidColorBrush* m_pCornflowerBlueBrush;
 };
