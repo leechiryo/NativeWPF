@@ -71,7 +71,7 @@ public:
 
     // Call virtual function from the destructor.
     // This is what I want.
-    DestoryD2DResources();
+    DestroyD2DResources();
   }
 
   // Process and dispatch messages
@@ -120,7 +120,7 @@ public:
   }
 
   // Release device-dependent resource.
-  virtual void DestoryD2DResources() {
+  virtual void DestroyD2DResources() {
     SafeRelease(m_pLightSlateGrayBrush);
     SafeRelease(m_pRenderTarget);
   }
@@ -233,7 +233,7 @@ private:
           if (hr == D2DERR_RECREATE_TARGET) {
             // Discard all of the device resources in the child window
             // and recreate them.
-            pDemoApp->DestoryD2DEnvironment();
+            pDemoApp->DestroyD2DEnvironment();
             pDemoApp->CreateD2DEnvironment();
           }
 

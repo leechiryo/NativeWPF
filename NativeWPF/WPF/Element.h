@@ -63,8 +63,8 @@ protected:
   // Create the resources to draw itself.
   virtual void CreateD2DResources() = 0;
 
-  // Destory the resources.
-  virtual void DestoryD2DResources() = 0;
+  // Destroy the resources.
+  virtual void DestroyD2DResources() = 0;
 
   virtual void MouseMove(float x, float y) {
   }
@@ -73,6 +73,13 @@ protected:
   }
 
   virtual void MouseLeft(float x, float y) {
+  }
+
+  void GetPixelRect(RECT &rect){
+    rect.left = DipsXToPixels(m_left);
+    rect.top = DipsYToPixels(m_top);
+    rect.right = DipsXToPixels(m_right);
+    rect.bottom = DipsYToPixels(m_bottom);
   }
 
   void Draw() {
@@ -93,12 +100,12 @@ protected:
     }
   }
 
-  void DestoryD2DEnvironment() {
+  void DestroyD2DEnvironment() {
     for (auto e : m_subElements) {
-      e->DestoryD2DEnvironment();
+      e->DestroyD2DEnvironment();
     }
 
-    DestoryD2DResources();
+    DestroyD2DResources();
   }
 
   void AddMessageFunc(UINT msg, MessageFunction func) {
@@ -110,7 +117,7 @@ protected:
     bool isMouseEvent = 0;
     int pixelX = 0;
     int pixelY = 0;
-    if (msg == WM_MOUSEMOVE) {
+    if (msg == WM_MOUSEMOVE || msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP) {
       // When mouse event occured, we get the coordinate first.
       pixelX = GET_X_LPARAM(lParam);
       pixelY = GET_Y_LPARAM(lParam);
@@ -151,6 +158,14 @@ protected:
   template <typename T>
   float PixelsToDipsY(T y) {
     return static_cast<float>(y) / DPI_SCALE_Y;
+  }
+
+  int DipsXToPixels(float x){
+    return static_cast<int>(x * DPI_SCALE_X);
+  }
+
+  int DipsYToPixels(float y){
+    return static_cast<int>(y * DPI_SCALE_Y);
   }
 
   virtual bool HitTest(float dipX, float dipY) {
