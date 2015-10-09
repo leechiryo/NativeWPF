@@ -70,7 +70,7 @@ protected:
     }
   }
 
-  virtual void DestoryD2DResources(){
+  virtual void DestroyD2DResources(){
     SafeRelease(m_pBrush);
     SafeRelease(m_pTextFormat);
   }
@@ -106,7 +106,7 @@ public:
   virtual ~Label() {
     // Call virtual function from the destructor.
     // This is what I want.
-    DestoryD2DResources();
+    DestroyD2DResources();
   }
 
   void SetText(const wchar_t *text) {

@@ -147,7 +147,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WPF\ClickableElement.h" />
     <ClInclude Include="WPF\Button.h" />
     <ClInclude Include="WPF\CommonFunction.h" />
     <ClInclude Include="WPF\DragableElement.h" />
