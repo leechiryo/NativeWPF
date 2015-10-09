@@ -1,45 +1,113 @@
-﻿========================================================================
-    Win32 アプリケーション: NativeWPF プロジェクトの概要
-========================================================================
+﻿Desktop MVC in C++
 
-この NativeWPF アプリケーションは、AppWizard により作成されました。
+M - Model
+V - View
+C - Controller
 
-このファイルには、NativeWPF アプリケーションを構成する各ファイルの内容の概要が含まれています。
+                       +----------------+
+        +------------- |   Controller   | <--+-------------+
+        |              +----------------+    |             |
+        |                                    |             |
+        v                                    |             |
++----------------+                           |             |
+|     Model      |                           |             |
++----------------+                           |             |
+        ^                                    v             |
+        |                     +----------------+           |
+        +------------------>  |      View      |           |
+        |                     +----------------+           |
+        |                                                  |
+        |                     +----------------+           |
+        +------------------>  |  Sub View      |  <--------+
+        |                     +----------------+           |
+        |                                                  |
+        |                     +----------------+           |
+        +------------------>  |  Sub View      |  <--------+
+                              +----------------+
 
 
-NativeWPF.vcxproj
-    これは、アプリケーション ウィザードを使用して生成された VC++ プロジェクトのメイン プロジェクト ファイルです。ファイルを生成した Visual C++ のバージョンに関する情報と、アプリケーション ウィザードで選択されたプラットフォーム、構成、およびプロジェクト機能に関する情報が含まれています。
 
-NativeWPF.vcxproj.filters
-    これは、アプリケーション ウィザードで生成された VC++ プロジェクトのフィルター ファイルです。このファイルには、プロジェクト内のファイルとフィルターとの間の関連付けに関する情報が含まれています。この関連付けは、特定のノードで同様の拡張子を持つファイルのグループ化を示すために IDE で使用されます (たとえば、".cpp" ファイルは "ソース ファイル" フィルターに関連付けられています)。
 
-NativeWPF.cpp
-    これは、メインのアプリケーション ソース ファイルです。
 
-/////////////////////////////////////////////////////////////////////////////
-AppWizard によって、次のリソースが作成されました。
+class Model{
+private:
+  vector<View*> m_views;
+  void AddView(View * v){
+    m_views.push_back(v);
+  }
 
-NativeWPF.rc
-    これは、プログラムが使用するすべての Microsoft Windows リソースの一覧です。RES サブディレクトリに格納されるアイコン、ビットマップ、およびカーソルをインクルードしています。このファイルは、Microsoft Visual C++ で直接編集できます。
+public:
+  int m_member1;
+  float m_member2;
+  void NotifyChanged(){
+    for(auto v : m_views){
+      v->Update();
+    }
+  }
+};
 
-Resource.h
-    これは、新しいリソース ID を定義する標準のヘッダー ファイルです。このファイルの読み込みおよび更新は、Microsoft Visual C++ で行います。
+class View{
+private:
+  Model *m_model;
+  Controller *m_controller;
+  vector<View *> m_subViews;
 
-NativeWPF.ico
-    これは、アプリケーションのアイコン (32x32) として使用されるアイコン ファイルです。このアイコンは、メイン リソース ファイル NativeWPF.rc にインクルードされます。
+public:
+  Model * GetModel(){
+    return m_model;
+  }
 
-small.ico
-    これは、アプリケーションのアイコンの小さいバージョン (16x16) を含むアイコン ファイルです。このアイコンは、メイン リソース ファイル NativeWPF.rc にインクルードされます。
+  void SetModel(Model * m){
+    m->AddView(this);
+    m_model = m;
+  }
 
-/////////////////////////////////////////////////////////////////////////////
-その他の標準ファイル :
+  void Update(){
+    // use the model value to update itself.
+    // check if the model member which is showed
+    // in the view is changed.
 
-StdAfx.h, StdAfx.cpp
-    これらのファイルは、NativeWPF.pch という名前のプリコンパイル済みヘッダー (PCH) ファイルと、StdAfx.obj という名前のプリコンパイル済みの型ファイルをビルドするために使用されます。
+    // if changed, then call invalidate to update 
+    // the screen.
 
-/////////////////////////////////////////////////////////////////////////////
-その他のメモ :
+    // Is there a common way to check if the model 
+    // is changed?
+    Invalidate();
+  }
 
-AppWizard では "TODO:" コメントを使用して、ユーザーが追加またはカスタマイズする必要のあるソース コードを示します。
+  void AddSubView(View *v){
+    v->SetModel(m_model);
+    m_subViews.push_back(v);
+  }
+};
 
-/////////////////////////////////////////////////////////////////////////////
+class Controller{
+private:
+    View * m_v1;
+    View * m_v2;
+
+protected:
+    View * m_mainView;
+
+public :
+  Controller(){
+    m_v1 = new View();
+    m_v2 = new View();
+    m_mainView = m_v1;
+  }
+
+  ~Controller(){
+    delete m_v1;
+    delete m_v2;
+  }
+
+  View * ControlFunction(Model *m){
+    m->m_member1 = newVal1;
+    m->m_member2 = newVal2;
+    m->NotifyChanged();
+  }
+
+  Startup(){
+    m_mainView->Show();
+  }
+};
