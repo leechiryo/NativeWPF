@@ -15,7 +15,7 @@ public:
   typedef LRESULT(Element::*MessageFunction)(WPARAM wParam, LPARAM lParam);
 
 private:
-  std::map<UINT, MessageFunction> m_msgFuncTbl;
+  std::map<UINT, std::vector<MessageFunction> > m_msgFuncTbl;
 
   static float DPI_SCALE_X;
   static float DPI_SCALE_Y;
@@ -107,10 +107,6 @@ protected:
     DestroyD2DResources();
   }
 
-  void AddMessageFunc(UINT msg, MessageFunction func) {
-    m_msgFuncTbl[msg] = func;
-  }
-
   char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) {
 
     bool isMouseEvent = 0;
@@ -155,7 +151,9 @@ protected:
     // if the child elements are not process the current
     // message, then try the parent element itself.
     if (m_msgFuncTbl.find(msg) != m_msgFuncTbl.end()) {
-      result = (this->*m_msgFuncTbl[msg])(wParam, lParam);
+      for (auto f : m_msgFuncTbl[msg]){
+        result = (this->*f)(wParam, lParam);
+      }
       return 1;  // Notify to parent element that it processed the message.
     }
 
@@ -248,4 +246,9 @@ public:
     m_right = right;
     m_bottom = bottom;
   }
+
+  void AddMessageFunc(UINT msg, MessageFunction func) {
+    m_msgFuncTbl[msg].push_back(func);
+  }
+
 };

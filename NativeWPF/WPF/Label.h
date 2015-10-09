@@ -141,4 +141,19 @@ public:
     }
   }
 
+  void SetAlignment(DWRITE_TEXT_ALIGNMENT textAlignment){
+    HRESULT hr = m_pTextFormat->SetTextAlignment(textAlignment);
+
+    if (!SUCCEEDED(hr)) {
+      throw new std::runtime_error("Failed to set the alignment of the label.");
+    }
+  }
+
+  void SetVerticalAlignment(DWRITE_PARAGRAPH_ALIGNMENT paraAlignment){
+    HRESULT hr = m_pTextFormat->SetParagraphAlignment(paraAlignment);
+
+    if (!SUCCEEDED(hr)) {
+      throw new std::runtime_error("Failed to set the veritical alignment of the label.");
+    }
+  }
 };

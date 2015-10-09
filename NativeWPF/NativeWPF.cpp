@@ -5,6 +5,7 @@
 #include "WPF\MainWindow.h"
 #include "WPF\Label.h"
 #include "WPF\ClickableElement.h"
+#include "WPF\Button.h"
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -37,6 +38,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
       ClickableElement *clickbtn = app.CreateSubElement<ClickableElement>();
       clickbtn->SetPosition(80, 300, 160, 330);
+
+      Button *btn = app.CreateSubElement<Button>();
+      btn->SetPosition(80, 360, 160, 390);
 
       app.Update();
 
