@@ -20,6 +20,8 @@ private:
   static float DPI_SCALE_X;
   static float DPI_SCALE_Y;
 
+  bool m_mouseIn;
+
 protected:
   float m_left;
   float m_top;
@@ -118,10 +120,24 @@ protected:
     }
 
     for (auto e : m_subElements) {
-      if (isMouseEvent && !e->HitTest(pixelX, pixelY)) {
-        // Mouse event should be processed only when it is
-        // occured in the element's area.
-        continue;
+      if (isMouseEvent) {
+        float dipX = PixelsToDipsX(pixelX);
+        float dipY = PixelsToDipsY(pixelY);
+        if (!e->HitTest(dipX, dipY)) {
+          // Mouse event should be processed only when it is
+          // occured in the element's area.
+          if (e->m_mouseIn) {
+            e->m_mouseIn = 0;
+            e->MouseLeft(dipX, dipY);
+          }
+          continue;
+        }
+        else {
+          if (!e->m_mouseIn) {
+            e->m_mouseIn = 1;
+            e->MouseEnter(dipX, dipY);
+          }
+        }
       }
 
       // child element will try to process the message first.
