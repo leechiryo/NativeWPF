@@ -10,16 +10,6 @@ private:
   ID2D1SolidColorBrush* m_pClickBackgroundBrush;
   ID2D1SolidColorBrush* m_pBackgroundBrush;
 
-  LRESULT HandleMessage_MOUSEMOVE(WPARAM wParam, LPARAM lParam){
-    m_pBackgroundBrush = m_pHoverBackgroundBrush;
-
-    RECT rect;
-    GetPixelRect(rect);
-
-    InvalidateRect(m_pRenderTarget->GetHwnd(), &rect, 0);
-    return 0;
-  }
-
   LRESULT HandleMessage_LBUTTONDOWN(WPARAM wParam, LPARAM lParam){
     m_pBackgroundBrush = m_pClickBackgroundBrush;
 
@@ -85,16 +75,32 @@ protected:
     m_pRenderTarget->FillRectangle(rect, m_pBackgroundBrush);
   }
 
+  virtual void MouseEnter(float x, float y) {
+    m_pBackgroundBrush = m_pHoverBackgroundBrush;
+
+    RECT rect;
+    GetPixelRect(rect);
+
+    InvalidateRect(m_pRenderTarget->GetHwnd(), &rect, 0);
+  }
+
+  virtual void MouseLeft(float x, float y) {
+    m_pBackgroundBrush = m_pNormalBackgroundBrush;
+
+    RECT rect;
+    GetPixelRect(rect);
+
+    InvalidateRect(m_pRenderTarget->GetHwnd(), &rect, 0);
+  }
+
 public:
   ClickableElement(ID2D1HwndRenderTarget *rt) : Element(rt) {
     // Call virtual function of itself.
     CreateD2DResources();
     m_pBackgroundBrush = m_pNormalBackgroundBrush;
 
-    AddMessageFunc(WM_MOUSEMOVE, (MessageFunction)(&ClickableElement::HandleMessage_MOUSEMOVE));
     AddMessageFunc(WM_LBUTTONDOWN, (MessageFunction)(&ClickableElement::HandleMessage_LBUTTONDOWN));
     AddMessageFunc(WM_LBUTTONUP, (MessageFunction)(&ClickableElement::HandleMessage_LBUTTONUP));
-
   }
 
   virtual ~ClickableElement() {

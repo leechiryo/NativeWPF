@@ -1,4 +1,4 @@
-// NativeWPF.cpp : ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌƒGƒ“ƒgƒŠ ƒ|ƒCƒ“ƒg‚ğ’è‹`‚µ‚Ü‚·B
+ï»¿// NativeWPF.cpp : ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚¨ãƒ³ãƒˆãƒª ãƒã‚¤ãƒ³ãƒˆã‚’å®šç¾©ã—ã¾ã™ã€‚
 //
 
 #include "stdafx.h"
@@ -19,7 +19,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
       Label * pLabel = app.CreateSubElement<Label>();
       pLabel->SetPosition(80, 100, 650, 150);
-      pLabel->SetText(L"ƒ‰ƒxƒ‹‚©‚ç‚Ì‚ ‚¢‚³‚ÂI");
+      pLabel->SetText(L"ãƒ©ãƒ™ãƒ«ã‹ã‚‰ã®ã‚ã„ã•ã¤ï¼ä¸–ç•Œæ‚¨å¥½ï¼");
       pLabel->SetColor(0x656565);
       pLabel->SetFont(L"Migu 1M",
         DWRITE_FONT_WEIGHT_REGULAR,
@@ -36,7 +36,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
         DWRITE_FONT_STRETCH_NORMAL, 16.0f);
 
       ClickableElement *clickbtn = app.CreateSubElement<ClickableElement>();
-      clickbtn->SetPosition(80, 300, 100, 320);
+      clickbtn->SetPosition(80, 300, 160, 330);
 
       app.Update();
 

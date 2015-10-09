@@ -68,9 +68,6 @@ protected:
   // Destroy the resources.
   virtual void DestroyD2DResources() = 0;
 
-  virtual void MouseMove(float x, float y) {
-  }
-
   virtual void MouseEnter(float x, float y) {
   }
 
