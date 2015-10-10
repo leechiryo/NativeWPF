@@ -28,9 +28,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
         DWRITE_FONT_STRETCH_NORMAL, 24.0f);
 
       Label * pLabel1 = app.CreateSubElement<Label>();
-      pLabel1->SetPosition(650, 100, 1150, 150);
+      pLabel1->SetPosition(500, 100, 1000, 150);
       pLabel1->SetText(L"全体を構成するうえでの重要な部分。要点。眼目。「提案の骨子」");
-      pLabel1->SetColor(0x555555);
+      pLabel1->SetColor(0x444444);
       pLabel1->SetFont(L"Yu Mincho",
         DWRITE_FONT_WEIGHT_REGULAR,
         DWRITE_FONT_STYLE_NORMAL,
