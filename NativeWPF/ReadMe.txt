@@ -52,6 +52,10 @@ public:
     v->SetModel(m);
     return v;
   }
+
+  View* Startup(){
+    // return the main view.
+  }
 }
 
 
