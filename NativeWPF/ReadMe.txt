@@ -2,31 +2,57 @@
 
 M - Model
 V - View
-C - Controller
+C - Controller                  +------------------------------------------------------------+
+                                |                 (3') Create a new model and new view       |
+ (3) Manipulate Model  +----------------+                                                    |
+        +------------- |   Controller   | <--+---------------------------------+             |   
+        |              +----------------+    |                                 |             v
+        |                                    |                                 |  +-------------------------+        +----------------+
+        v                                    |                                 |  |  New View               |<------>| New Model      |
++----------------+                           |                                 |  |                         |        +----------------+
+|     Model      |                           |                                 |  |   (4') Event Occured    |
++----------------+                           |                                 |  |  +--------------------+ |  (5') Invoke another controller
+        ^                                    v                                 |  |  |  Sub View          | |-------------------------...
+        |                     +-------------------------+                      |  |  |                    | |       use a string as reference
+        +------------------>  |  View                   |                      |  |  | +----------------+ | |       to find a controller
+ (4) Notify the model changed |                         |                      |  |  | | Sub Sub View   | | |
+                              |  (1) Event Occured      |                      |  |  | +----------------+ | |
+                              |  +--------------------+ |                      |  |  +--------------------+ |
+                              |  |  Sub View          | |                      |  +-------------------------+ 
+                              |  |                    | | (2) Invoke Controller|   
+                              |  | +----------------+ | |  --------------------+   
+                              |  | | Sub Sub View   | | |     use a string as reference
+                              |  | +----------------+ | |     to find a controller
+                              |  +--------------------+ |
+                              +-------------------------+
+                                 (5) Update the view
 
-                       +----------------+
-        +------------- |   Controller   | <--+-------------+
-        |              +----------------+    |             |
-        |                                    |             |
-        v                                    |             |
-+----------------+                           |             |
-|     Model      |                           |             |
-+----------------+                           |             |
-        ^                                    v             |
-        |                     +----------------+           |
-        +------------------>  |      View      |           |
-        |                     +----------------+           |
-        |                                                  |
-        |                     +----------------+           |
-        +------------------>  |  Sub View      |  <--------+
-        |                     +----------------+           |
-        |                                                  |
-        |                     +----------------+           |
-        +------------------>  |  Sub View      |  <--------+
-                              +----------------+
+class App{
+private:
+  map<string, Controller*> m_controllers;
+  map<string, View*> m_views;
+  map<string, Model*> m_models;
+  map<string, Model*> m_oldModels; // compare with m_models will make us know the model is changed.
+public:
+  Controller * GetController(string);
+  View * GetView(string);
+  Model * GetModel(string);
 
+  template <class MT>
+  MT * CreateNewModel(const string & s, MT * m){
+    MT * m = new MT();
+    m_model[s] = m;
+    return m;
+  }
 
-
+  template <class VT, class MT>
+  VT * CreateNewView(const string & s, MT * m){
+    VT * v = new VT();
+    m_views[s] = v;
+    v->SetModel(m);
+    return v;
+  }
+}
 
 
 class Model{
