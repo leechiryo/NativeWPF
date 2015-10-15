@@ -147,9 +147,12 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="WPF\App.h" />
     <ClInclude Include="WPF\Button.h" />
     <ClInclude Include="WPF\ClickableElement.h" />
     <ClInclude Include="WPF\CommonFunction.h" />
+    <ClInclude Include="WPF\Controller.h" />
+    <ClInclude Include="WPF\ControllerBase.h" />
     <ClInclude Include="WPF\DragableElement.h" />
     <ClInclude Include="WPF\Element.h" />
     <ClInclude Include="NativeWPF.h" />
@@ -163,14 +166,18 @@
     <ClInclude Include="WPF\Label.h" />
     <ClInclude Include="WPF\MainWindow.h" />
     <ClInclude Include="WPF\MessageHandler.h" />
+    <ClInclude Include="WPF\Model.h" />
     <ClInclude Include="WPF\ScrollBar.h" />
     <ClInclude Include="WPF\SplitWindow.h" />
     <ClInclude Include="WPF\TextBox.h" />
     <ClInclude Include="WPF\VDragableElement.h" />
+    <ClInclude Include="WPF\View.h" />
+    <ClInclude Include="WPF\ViewBase.h" />
     <ClInclude Include="WPF\VScrollBar.h" />
     <ClInclude Include="WPF\VSplitWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="WPF\App.cpp" />
     <ClCompile Include="NativeWPF.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
