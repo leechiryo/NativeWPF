@@ -1,6 +1,7 @@
 #pragma once
 
+#include "ViewBase.h"
 template <class T>
-class ViewBase {
+class View : public ViewBase{
 
 };
