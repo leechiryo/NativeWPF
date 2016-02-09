@@ -9,7 +9,7 @@ using namespace std;
 class App
 {
 private:
-  map<string, Controller*> m_controllers;
+  map<string, ControllerBase*> m_controllers;
 public:
   App();
   ~App();
