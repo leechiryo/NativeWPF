@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Model.h"
+#include "ModelBase.h"
 #include "ViewBase.h"
 
 class ControllerBase {
 private:
   ViewBase *m_v;
 
-  void ContrllerMethod(ViewBase *v, Model *m) {
+  void ContrllerMethod(ViewBase *v, ModelBase *m) {
   }
 
-  virtual ViewBase * InnerControl(Model *m) = 0;
+  virtual ViewBase * InnerControl(ModelBase *m) = 0;
 };

@@ -37,7 +37,7 @@ protected:
       &m_pNormalBackgroundBrush);
 
     if (!SUCCEEDED(hr)) {
-      throw new std::runtime_error("Failed to create the background brush.");
+      throw std::runtime_error("Failed to create the background brush.");
     }
 
     hr = m_pRenderTarget->CreateSolidColorBrush(
@@ -46,7 +46,7 @@ protected:
 
     if (!SUCCEEDED(hr)) {
       SafeRelease(m_pNormalBackgroundBrush);
-      throw new std::runtime_error("Failed to create the background brush.");
+      throw std::runtime_error("Failed to create the background brush.");
     }
 
     hr = m_pRenderTarget->CreateSolidColorBrush(
@@ -56,7 +56,7 @@ protected:
     if (!SUCCEEDED(hr)) {
       SafeRelease(m_pNormalBackgroundBrush);
       SafeRelease(m_pHoverBackgroundBrush);
-      throw new std::runtime_error("Failed to create the background brush.");
+      throw std::runtime_error("Failed to create the background brush.");
     }
   }
 

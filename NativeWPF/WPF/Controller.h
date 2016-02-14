@@ -1,14 +1,11 @@
 #pragma once
+#include <Windows.h>
 
-#include "Model.h"
-#include "ControllerBase.h"
-
-template <class V, class M>
-class Controller: public ControllerBase{
+class Controller{
 public:
-  virtual ViewBase * InnerControl(Model *m) {
-    M *realM = static_cast<M*> m;
-    return ControllerFunc(realM);
+
+  template<typename M>
+  bool Method1(M* m, WPARAM w, LPARAM l, LRESULT& r) {
+    return false;
   }
-  virtual V * ControllerFunc(M *m) = 0;
 };

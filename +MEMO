@@ -28,3 +28,21 @@ HSplitWindow : D2dWindow
   -> LSubWindow, RSubWindow, HDragableBar
 VSplitWindow : D2dWindow
   -> TSubWindow, BSubWindow, VDragableBar
+
+Controller
+
+View -> in a tree constructure.
+
+                     View
+                   /     \           \
+              SubView   SubView ... SubView
+                /  \
+          SubView SubView
+
+Brother views have a z-index to indicate which is in the front when they are in the same position.
+
+(Event Model)
+ an event triggered in a view will be processed in the view's event handler.
+ and can be delivered the parent view and the parent of the parent view.
+
+Model
