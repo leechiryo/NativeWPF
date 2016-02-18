@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /*
  * Every view class has a layout and model as its template parameters.
@@ -37,7 +37,8 @@ class View : public ViewBase{
   typedef bool(*EventHandler) (Model*, WPARAM, LPARAM, LRESULT&);
 
 public:
-  View(Model* m, Layout* l) : ViewBase(m) {
+  View(Model* m, Layout* l) : ViewBase() {
+    m_pModel = m;
     _l = l;
     _l->SetView(this);
   }
@@ -59,15 +60,23 @@ public:
 
   bool HandleEvent(UINT msg, WPARAM w, LPARAM l, LRESULT&r) {
     if (m_events.find(msg) != m_events.end()) {
+      bool processed = true;
       for (auto eh : m_events[msg]) {
-        m_events[msg](static_cast<Model*>m_pModel, w, l, r);
+        processed = processed && m_events[msg](m_pModel, w, l, r);
       }
-      return true;
+      // 每个处理函数都返回True（即，所有事件的处理都不再向父View传递）时，将返回True。
+      // 如果有一个处理函数返回False，则将返回False。如此会导致父View的事件处理函数被调用。
+      return processed;
     }
     return false;
+  }
+
+  Model* GetModel(){
+    return m_pModel;
   }
 
 private:
   Layout* _l;
   map<UINT, list<EventHandler>> m_events;
+  Model* m_pModel;
 };

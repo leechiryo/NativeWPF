@@ -5,7 +5,7 @@ class Controller{
 public:
 
   template<typename M>
-  bool Method1(M* m, WPARAM w, LPARAM l, LRESULT& r) {
+  static bool Method1(M* m, WPARAM w, LPARAM l, LRESULT& r) {
     return false;
   }
 };

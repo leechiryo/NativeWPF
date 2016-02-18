@@ -64,10 +64,13 @@ App::~App()
   }
 }
 
-ViewBase * App::GetView(string id)
+template <typename ViewType>
+ViewType* App::GetView(string id)
 {
   if (m_views.find(id) != m_views.end()) {
-    return m_views[id];
+    ViewType* ret = dynamic_cast<ViewType*>(m_views[id]);
+    if (ret == nullptr) return ret;
+    else throw std::runtime_error("Type error! Cannot convert the view to the specified type. id = " + id);
   }
   return nullptr;
 }

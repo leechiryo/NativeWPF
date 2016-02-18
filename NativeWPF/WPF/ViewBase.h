@@ -23,14 +23,12 @@ private:
   bool m_mouseIn;
 
 protected:
-  ModelBase* m_pModel;
   virtual bool HandleEvent(UINT msg, WPARAM w, LPARAM l, LRESULT&r) = 0;
 
-public:
-  ViewBase(ModelBase* pm) {
-    m_pModel = pm;
+  ViewBase() {
   }
 
+public:
   int GetWidth() {
     return m_width;
   }
@@ -43,10 +41,6 @@ public:
     m_subViews.push_back(v);
   }
 
-  ModelBase* GetModel() {
-    return m_pModel;
-  }
-
   // Derived class will implement this method to draw itself.
   virtual void DrawSelf() = 0;
 
@@ -56,9 +50,11 @@ public:
   // Destroy the resources.
   virtual void DestroyD2DResources() = 0;
 
+  // Will be called when the mouse entered from the outer of the view.
   virtual void MouseEnter(double x, double y) {
   }
 
+  // Will be called when the mouse left from the inner of the view.
   virtual void MouseLeft(double x, double y) {
   }
 
@@ -124,7 +120,7 @@ public:
       }
 
       // child element will try to process the message first.
-      char processed = e->HandleMessage(msg, wParam, lParam, result);
+      bool processed = e->HandleMessage(msg, wParam, lParam, result);
 
       // if child processed the message, then return the result
       // and the parent's event handler will be skipped.

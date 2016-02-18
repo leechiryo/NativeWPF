@@ -52,7 +52,9 @@ public:
   static double DPI_SCALE_Y;
   App();
   ~App();
-  ViewBase* GetView(string);
+
+  template <typename ViewType>
+  ViewType* GetView(string);
 
   // Use this method to create view.
   // first parameter is the id of the view.
