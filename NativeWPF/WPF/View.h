@@ -62,7 +62,7 @@ public:
     if (m_events.find(msg) != m_events.end()) {
       bool processed = true;
       for (auto eh : m_events[msg]) {
-        processed = processed && m_events[msg](m_pModel, w, l, r);
+        processed = processed && eh(m_pModel, w, l, r);
       }
       // 每个处理函数都返回True（即，所有事件的处理都不再向父View传递）时，将返回True。
       // 如果有一个处理函数返回False，则将返回False。如此会导致父View的事件处理函数被调用。

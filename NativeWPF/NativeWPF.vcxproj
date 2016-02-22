@@ -168,6 +168,7 @@
     <ClInclude Include="WPF\MainWindow.h" />
     <ClInclude Include="WPF\MessageHandler.h" />
     <ClInclude Include="WPF\ModelBase.h" />
+    <ClInclude Include="WPF\ModelChecker.h" />
     <ClInclude Include="WPF\ScrollBar.h" />
     <ClInclude Include="WPF\SplitWindow.h" />
     <ClInclude Include="WPF\TextBox.h" />

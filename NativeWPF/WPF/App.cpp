@@ -62,6 +62,13 @@ App::~App()
       m = nullptr;
     }
   }
+
+  for (auto mc : m_modelCheckers) {
+    if (mc != nullptr) {
+      delete mc;
+      mc = nullptr;
+    }
+  }
 }
 
 template <typename ViewType>
@@ -73,4 +80,18 @@ ViewType* App::GetView(string id)
     else throw std::runtime_error("Type error! Cannot convert the view to the specified type. id = " + id);
   }
   return nullptr;
+}
+
+
+void App::UpdateViews() {
+  for (auto mc : m_modelCheckers) {
+    if (mc->ModelChanged()) {
+      const void * pModel = mc->GetModelAddr();
+      if (m_bindings.find(pModel) != m_bindings.end()) {
+        for (auto v : m_bindings[pModel]) {
+          v->Draw();
+        }
+      }
+    }
+  }
 }

@@ -32,6 +32,7 @@
 #include <string>
 #include "Controller.h"
 #include "ModelBase.h"
+#include "ModelChecker.h"
 
 using namespace std;
 
@@ -42,10 +43,11 @@ class App
 private:
   map<string, ViewBase*> m_views;
   list<ModelBase *> m_models;
+  map<const void*, list<ViewBase*>> m_bindings;
+  list<ModelCheckerBase*> m_modelCheckers;
 
   static ID2D1Factory* s_pDirect2dFactory;
   static IDWriteFactory* s_pDWriteFactory;
-
 
 public:
   static double DPI_SCALE_X;
@@ -72,4 +74,19 @@ public:
   M* CreateModel(Args... args) {
     m_models.push_back(new M(args...));
   }
+
+  // 存储Model的要素的地址和相关的View的指针。
+  // 当Model的值发生变化的时候程序可以更新所有与其绑定的Views。
+  template<typename T>
+  void AddBinding(const T &model, ViewBase* pv) {
+    if (m_bindings.find(&model) == m_bindings.end()) {
+      m_bindings.insert(make_pair(&model, std::move(list<ViewBase*>())));
+
+      ModelChecker<T> *mc = new ModelChecker<T>(model);
+      m_modelChecker.push_back(mc);
+    }
+    m_bindings[model].push_back(pv);
+  }
+
+  void UpdateViews();
 };
